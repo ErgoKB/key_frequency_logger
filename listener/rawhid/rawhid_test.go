@@ -110,6 +110,21 @@ func TestIncompleteLine(t *testing.T) {
 	assert.Equal(t, "first line", read)
 }
 
+func TestTwoIncompleteLines(t *testing.T) {
+	m := new(mockDevice)
+	mockRead := []string{
+		"first line ",
+		"incomplete ",
+		"complete tail\n",
+	}
+	m.mockRead = mockRead
+	r := NewRawHID(m)
+	go r.Run()
+	outputCh := r.GetReadCh()
+	read := <-outputCh
+	assert.Equal(t, "first line incomplete complete tail", read)
+}
+
 func TestComposeIncompleteLine(t *testing.T) {
 	m := new(mockDevice)
 	mockRead := []string{

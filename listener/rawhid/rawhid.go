@@ -51,7 +51,7 @@ func (r *rawHID) Run() error {
 		if err != nil {
 			return nil
 		}
-		r.handleRead(strings.Split(read, string(NewLineChar)))
+		r.handleRead(strings.Split(r.incomplete+read, string(NewLineChar)))
 	}
 }
 
@@ -64,12 +64,6 @@ func (r *rawHID) handleRead(lines []string) {
 	if lines[len(lines)-1] != "" {
 		incompleteLine = lines[len(lines)-1]
 		lines = lines[:len(lines)-1]
-	}
-	if len(lines) == 0 {
-		return
-	}
-	if r.incomplete != "" {
-		lines[0] = r.incomplete + lines[0]
 	}
 	r.sendNonEmptyRead(lines)
 	r.incomplete = incompleteLine
