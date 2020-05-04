@@ -22,7 +22,6 @@ const (
 	Usage              = 0x0074
 	BufSize            = 64
 	TimeoutMillisecond = 200
-	NewLineChar        = '\n'
 )
 
 type rawHIDWrapper struct {

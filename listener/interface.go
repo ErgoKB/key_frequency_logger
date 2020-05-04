@@ -2,5 +2,6 @@ package listener
 
 type Listener interface {
 	Start() error
-	GetEventCh() chan []string
+	GetReadCh() chan string
+	Stop() error
 }
