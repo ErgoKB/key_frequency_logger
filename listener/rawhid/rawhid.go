@@ -16,7 +16,7 @@ const (
 type hidDevice interface {
 	open() error
 	read() (string, error)
-	close() error
+	close()
 }
 
 type rawHID struct {
@@ -24,6 +24,11 @@ type rawHID struct {
 	incomplete string
 	readCh     chan string
 	stopCh     chan struct{}
+}
+
+func NewDefaultRawHID() *rawHID {
+	hidDevice := NewHIDWrapper()
+	return NewRawHID(hidDevice)
 }
 
 func NewRawHID(device hidDevice) *rawHID {

@@ -33,9 +33,8 @@ func (m *mockDevice) read() (string, error) {
 	return res, nil
 }
 
-func (m *mockDevice) close() error {
+func (m *mockDevice) close() {
 	m.MethodCalled("close")
-	return nil
 }
 
 type mockErrorDevice struct {
