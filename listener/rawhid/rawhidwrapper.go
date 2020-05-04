@@ -45,10 +45,20 @@ func (r *rawHIDWrapper) open() error {
 }
 
 func (r *rawHIDWrapper) read() (string, error) {
+	if r.hid == nil {
+		return "", fmt.Errorf("device not opened")
+	}
 	numInC := C.rawhid_read(unsafe.Pointer(r.hid), unsafe.Pointer(&r.buf[0]), C.int(BufSize), C.int(TimeoutMillisecond))
 	num := int(numInC)
 	if num < 0 {
 		return "", fmt.Errorf("device disconnected")
 	}
 	return string(r.buf[:num]), nil
+}
+
+func (r *rawHIDWrapper) close() {
+	if r.hid == nil {
+		return
+	}
+	C.rawhid_close(unsafe.Pointer(r.hid))
 }

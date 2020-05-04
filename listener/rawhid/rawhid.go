@@ -12,6 +12,7 @@ const (
 type hidDevice interface {
 	open() error
 	read() (string, error)
+	close() error
 }
 
 type rawHID struct {
@@ -38,6 +39,10 @@ func (r *rawHID) Start() {
 
 func (r *rawHID) GetReadCh() chan string {
 	return r.readCh
+}
+
+func (r *rawHID) Close() {
+	r.hidDevice.close()
 }
 
 func (r *rawHID) Run() error {

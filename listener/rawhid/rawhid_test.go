@@ -33,6 +33,11 @@ func (m *mockDevice) read() (string, error) {
 	return res, nil
 }
 
+func (m *mockDevice) close() error {
+	m.MethodCalled("close")
+	return nil
+}
+
 type mockErrorDevice struct {
 	mockDevice
 	counter int
@@ -119,4 +124,12 @@ func TestComposeIncompleteLine(t *testing.T) {
 	read := <-outputCh
 	assert.Equal(t, "incomplete tail this one complete it", read)
 	assert.Equal(t, "", r.incomplete)
+}
+
+func TestClose(t *testing.T) {
+	m := new(mockDevice)
+	m.On("close")
+	r := NewRawHID(m)
+	r.Close()
+	m.AssertNumberOfCalls(t, "close", 1)
 }
