@@ -64,7 +64,7 @@ func (r *rawHID) GetReadCh() chan string {
 	return r.readCh
 }
 
-func (r *rawHID) Close() {
+func (r *rawHID) Stop() {
 	r.stopCh <- struct{}{}
 	r.hidDevice.close()
 }

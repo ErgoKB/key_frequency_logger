@@ -145,6 +145,6 @@ func TestClose(t *testing.T) {
 	m.On("close")
 	r := NewRawHID(m)
 	go r.Run()
-	r.Close()
+	r.Stop()
 	m.AssertNumberOfCalls(t, "close", 1)
 }

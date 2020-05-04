@@ -1,7 +1,7 @@
 package listener
 
 type Listener interface {
-	Start() error
+	Start()
 	GetReadCh() chan string
 	Run() error
 	Stop()
