@@ -2,11 +2,15 @@ package rawhid
 
 import (
 	"strings"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
-	NewLineChar = '\n'
-	ChanBuffer  = 100
+	NewLineChar  = '\n'
+	ChanBuffer   = 100
+	OpenInterval = 200 * time.Millisecond
 )
 
 type hidDevice interface {
@@ -19,20 +23,34 @@ type rawHID struct {
 	hidDevice  hidDevice
 	incomplete string
 	readCh     chan string
+	stopCh     chan struct{}
 }
 
 func NewRawHID(device hidDevice) *rawHID {
 	return &rawHID{
 		hidDevice: device,
 		readCh:    make(chan string, ChanBuffer),
+		stopCh:    make(chan struct{}),
 	}
 }
 
 func (r *rawHID) Start() {
+	firstOpen := true
 	for {
-		err := r.hidDevice.open()
-		if err == nil {
-			break
+		select {
+		case <-r.stopCh:
+			return
+		default:
+			err := r.hidDevice.open()
+			if err == nil {
+				log.Info("Found Device")
+				return
+			}
+			if firstOpen {
+				firstOpen = false
+				log.Info("Waiting for device...")
+			}
+			<-time.After(time.Millisecond)
 		}
 	}
 }
@@ -42,16 +60,22 @@ func (r *rawHID) GetReadCh() chan string {
 }
 
 func (r *rawHID) Close() {
+	r.stopCh <- struct{}{}
 	r.hidDevice.close()
 }
 
 func (r *rawHID) Run() error {
 	for {
-		read, err := r.hidDevice.read()
-		if err != nil {
+		select {
+		case <-r.stopCh:
 			return nil
+		default:
+			read, err := r.hidDevice.read()
+			if err != nil {
+				return nil
+			}
+			r.handleRead(strings.Split(r.incomplete+read, string(NewLineChar)))
 		}
-		r.handleRead(strings.Split(r.incomplete+read, string(NewLineChar)))
 	}
 }
 

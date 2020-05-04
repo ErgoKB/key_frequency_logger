@@ -145,6 +145,7 @@ func TestClose(t *testing.T) {
 	m := new(mockDevice)
 	m.On("close")
 	r := NewRawHID(m)
+	go r.Run()
 	r.Close()
 	m.AssertNumberOfCalls(t, "close", 1)
 }
