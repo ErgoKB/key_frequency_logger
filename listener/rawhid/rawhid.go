@@ -51,10 +51,10 @@ func NewRawHID(device hidDevice) *rawHID {
 func (r *rawHID) Start() {
 	log.Info("Waiting for device...")
 	r.hidDevice.open()
-	log.Info("Device connected")
+	log.Info("Device connected, starts listening")
 }
 
-func (r *rawHID) GetReadCh() chan string {
+func (r *rawHID) GetOutputCh() chan string {
 	return r.outputCh
 }
 
@@ -62,6 +62,7 @@ func (r *rawHID) Stop() {
 	r.stopPullingDeviceCh <- struct{}{}
 	r.stopConsumeCh <- struct{}{}
 	r.hidDevice.close()
+	close(r.outputCh)
 }
 
 func (r *rawHID) Run() {

@@ -2,7 +2,7 @@ package listener
 
 type Listener interface {
 	Start()
-	GetReadCh() chan string
+	GetOutputCh() chan string
 	Run()
 	Stop()
 }
