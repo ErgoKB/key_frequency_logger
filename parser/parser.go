@@ -32,7 +32,6 @@ func (p *Parser) Parse(line string) *Event {
 }
 
 func parseEvent(line string) (*Event, error) {
-	log.Info(line)
 	res := new(Event)
 
 	trimed := strings.TrimPrefix(line, TargetPrefix)
