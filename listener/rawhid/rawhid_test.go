@@ -51,7 +51,7 @@ func TestReadOneLine(t *testing.T) {
 	m.mockRead = mockRead
 	r := NewRawHID(m)
 	go r.Run()
-	outputCh := r.GetReadCh()
+	outputCh := r.GetOutputCh()
 	line := <-outputCh
 	assert.Equal(t, string(bytes.TrimSpace(mockRead[0])), line)
 }
@@ -65,7 +65,7 @@ func TestReadTwoLines(t *testing.T) {
 	m.mockRead = mockRead
 	r := NewRawHID(m)
 	go r.Run()
-	outputCh := r.GetReadCh()
+	outputCh := r.GetOutputCh()
 	for _, line := range mockRead {
 		read := <-outputCh
 		assert.Equal(t, string(bytes.TrimSpace(line)), read)
@@ -80,7 +80,7 @@ func TestReadTwoNewLines(t *testing.T) {
 	m.mockRead = mockRead
 	r := NewRawHID(m)
 	go r.Run()
-	outputCh := r.GetReadCh()
+	outputCh := r.GetOutputCh()
 	read := <-outputCh
 	assert.Equal(t, "first", read)
 	read = <-outputCh
@@ -95,7 +95,7 @@ func TestNotSendEmptyLine(t *testing.T) {
 	m.mockRead = mockRead
 	r := NewRawHID(m)
 	go r.Run()
-	outputCh := r.GetReadCh()
+	outputCh := r.GetOutputCh()
 	read := <-outputCh
 	assert.Equal(t, "first", read)
 	read = <-outputCh

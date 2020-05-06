@@ -24,7 +24,7 @@ func TestRawRead(t *testing.T) {
 func TestRawHID(t *testing.T) {
 	hid := NewDefaultRawHID()
 	hid.Start()
-	ch := hid.GetReadCh()
+	ch := hid.GetOutputCh()
 	go hid.Run()
 	for i := 0; i < 1000; i++ {
 		output := <-ch

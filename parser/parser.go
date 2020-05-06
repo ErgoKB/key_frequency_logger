@@ -50,13 +50,13 @@ func parseEvent(line string) (*Event, error) {
 		case 1:
 			res.Row = val
 		case 2:
-			res.Layer = val
-		case 3:
 			if val == 1 {
 				res.Pressed = true
 			} else {
 				res.Pressed = false
 			}
+		case 3:
+			res.Layer = val
 		case 4:
 			res.Keycode = val
 		}
