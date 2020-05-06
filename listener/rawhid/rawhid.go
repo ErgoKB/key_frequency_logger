@@ -59,14 +59,18 @@ func (r *rawHID) GetOutputCh() chan string {
 }
 
 func (r *rawHID) Stop() {
-	r.stopPullingDeviceCh <- struct{}{}
-	r.stopConsumeCh <- struct{}{}
+	go func() {
+		r.stopPullingDeviceCh <- struct{}{}
+	}()
 	r.hidDevice.close()
-	close(r.outputCh)
 }
 
 func (r *rawHID) Run() {
 	go r.consume()
+	defer func() {
+		r.stopConsumeCh <- struct{}{}
+	}()
+
 	for {
 		select {
 		case <-r.stopPullingDeviceCh:
@@ -92,11 +96,8 @@ func (r *rawHID) bufferRead(read []byte) {
 	r.bufferIdx = (r.bufferIdx + 1) % BufferSize
 }
 
-func (r *rawHID) pullingDevice() {
-
-}
-
 func (r *rawHID) consume() {
+	defer func() { close(r.outputCh) }()
 	lastIdx := 0
 	for {
 		select {
