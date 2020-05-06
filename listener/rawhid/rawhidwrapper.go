@@ -11,54 +11,46 @@ import (
 #cgo darwin LDFLAGS: -framework IOKit -framework CoreFoundation
 #cgo windows CFLAGS: -DWINDOWS
 #cgo windows LDFLAGS: -lhid -lsetupapi
-#include "rawhid.h"
+#include "rawhid_wrapper.h"
 */
 import "C"
 
 const (
-	Vid                = 0
-	Pid                = 0
-	UsagePage          = 0xFF31
-	Usage              = 0x0074
-	BufSize            = 64
-	TimeoutMillisecond = 200
+	ReadBufferSize = 1024
 )
 
-type rawHIDWrapper struct {
-	hid *C.rawhid_t
+type hidWrapper struct {
 	buf []byte
 }
 
-func NewHIDWrapper() *rawHIDWrapper {
-	return &rawHIDWrapper{
-		buf: make([]byte, BufSize),
+func NewHIDWrapper() *hidWrapper {
+	return &hidWrapper{
+		buf: make([]byte, ReadBufferSize),
 	}
 }
 
-func (r *rawHIDWrapper) open() error {
-	hid := C.rawhid_open_only1(C.int(Vid), C.int(Pid), C.int(UsagePage), C.int(Usage))
-	if hid == nil {
-		return fmt.Errorf("no device found")
-	}
-	r.hid = (*C.rawhid_t)(unsafe.Pointer(hid))
-	return nil
+func (h *hidWrapper) open() {
+	C.hid_start()
 }
 
-func (r *rawHIDWrapper) read() (string, error) {
-	if r.hid == nil {
-		return "", fmt.Errorf("device not opened")
+func (h *hidWrapper) read() ([]byte, error) {
+	num := C.hid_read()
+
+	switch int(num) {
+	case -2:
+		return nil, fmt.Errorf("buffer overflow")
+	case -1:
+		return nil, fmt.Errorf("no device connected")
+	case 0:
+		return nil, nil
+	default:
+		for i := 0; i < int(num); i++ {
+			h.buf[i] = *(*byte)(unsafe.Pointer(&(C.returnBuf[i])))
+		}
+		return h.buf[:int(num)], nil
 	}
-	numInC := C.rawhid_read(unsafe.Pointer(r.hid), unsafe.Pointer(&r.buf[0]), C.int(BufSize), C.int(TimeoutMillisecond))
-	num := int(numInC)
-	if num < 0 {
-		return "", fmt.Errorf("device disconnected")
-	}
-	return string(r.buf[:num]), nil
 }
 
-func (r *rawHIDWrapper) close() {
-	if r.hid == nil {
-		return
-	}
-	C.rawhid_close(unsafe.Pointer(r.hid))
+func (h *hidWrapper) close() {
+	C.hid_close()
 }

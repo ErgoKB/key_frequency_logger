@@ -5,24 +5,29 @@ package rawhid
 import (
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
-func TestNewRawHID(t *testing.T) {
-	device := NewHIDWrapper()
-	assert.NotNil(t, device)
-}
-
-func TestRead(t *testing.T) {
+func TestRawRead(t *testing.T) {
 	device := NewHIDWrapper()
 	fmt.Println("waiting for device")
-	for err := device.open(); err != nil; err = device.open() {
-	}
+	device.open()
 	fmt.Println("device successfully opened, starts test")
-	for i := 0; i < 100; i++ {
-		output, err := device.read()
-		assert.NoError(t, err)
+	for i := 0; i < 2000; i++ {
+		output, _ := device.read()
+		if len(output) > 0 {
+			fmt.Print(string(output))
+		}
+	}
+	device.close()
+}
+
+func TestRawHID(t *testing.T) {
+	hid := NewDefaultRawHID()
+	hid.Start()
+	ch := hid.GetReadCh()
+	go hid.Run()
+	for i := 0; i < 1000; i++ {
+		output := <-ch
 		fmt.Println(output)
 	}
 }
