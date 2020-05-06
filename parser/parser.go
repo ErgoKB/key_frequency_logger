@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	TargetPrefix = "KL: "
-	SplitToken   = ", "
+	TargetPrefix = "ErgoKB:"
+	SplitToken   = ","
 )
 
 type Parser struct{}
@@ -23,44 +23,43 @@ func (p *Parser) Parse(line string) *Event {
 	if !strings.HasPrefix(line, TargetPrefix) {
 		return nil
 	}
-	trimed := strings.TrimPrefix(line, TargetPrefix)
-	tokens := strings.Split(trimed, SplitToken)
-	event, err := parseEvent(tokens)
+	event, err := parseEvent(line)
 	if err != nil {
+		log.WithError(err).WithField("input line", line).Warn("Encounter error while parsing, skipped")
 		return nil
 	}
 	return event
 }
 
-func parseEvent(tokens []string) (*Event, error) {
+func parseEvent(line string) (*Event, error) {
+	log.Info(line)
 	res := new(Event)
 
-	for _, token := range tokens {
-		fields := strings.Split(token, ": ")
-		if len(fields) != 2 {
-			return nil, fmt.Errorf("invalid fields")
-		}
-		val, err := strconv.Atoi(fields[1])
+	trimed := strings.TrimPrefix(line, TargetPrefix)
+	splitted := strings.Split(trimed, SplitToken)
+	if len(splitted) != 5 {
+		return nil, fmt.Errorf("Malformed line, skipped")
+	}
+	for idx, valStr := range splitted {
+		val, err := strconv.Atoi(valStr)
 		if err != nil {
-			return nil, fmt.Errorf("can not parse field")
+			return nil, err
 		}
-		switch fields[0] {
-		case "kc":
-			res.Keycode = val
-		case "col":
+		switch idx {
+		case 0:
 			res.Column = val
-		case "row":
+		case 1:
 			res.Row = val
-		case "layer":
+		case 2:
 			res.Layer = val
-		case "pressed":
+		case 3:
 			if val == 1 {
 				res.Pressed = true
-			} else if val == 0 {
+			} else {
 				res.Pressed = false
 			}
-		default:
-			log.Warn("unknown field, skipped")
+		case 4:
+			res.Keycode = val
 		}
 	}
 

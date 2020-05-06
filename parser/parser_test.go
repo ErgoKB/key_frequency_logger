@@ -15,12 +15,24 @@ func TestParseNonTargetLine(t *testing.T) {
 func TestParseEventLine(t *testing.T) {
 	p := NewParser()
 	event := Event{
-		Keycode: 9,
+		Keycode: 13,
 		Column:  5,
-		Row:     1,
+		Row:     4,
 		Layer:   0,
-		Pressed: true,
+		Pressed: false,
 	}
-	res := p.Parse("KL: kc: 9, col: 5, row: 1, pressed: 1, layer: 0")
+	res := p.Parse("ErgoKB:5,4,0,0,13")
 	assert.Equal(t, &event, res)
+}
+
+func TestParseConvertFail(t *testing.T) {
+	p := NewParser()
+	res := p.Parse("ErgoKB:5,4,0,true,13")
+	assert.Nil(t, res)
+}
+
+func TestParseInvalidLine(t *testing.T) {
+	p := NewParser()
+	res := p.Parse("ErgoKB:5,4,0,0,13Ergokb:2,2")
+	assert.Nil(t, res)
 }
