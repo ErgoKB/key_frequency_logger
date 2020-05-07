@@ -2,6 +2,7 @@ package rawhid
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,6 +34,14 @@ func (m *mockDevice) read() ([]byte, error) {
 
 func (m *mockDevice) close() {
 	m.MethodCalled("close")
+}
+
+type mockErrorDevice struct {
+	mockDevice
+}
+
+func (m *mockErrorDevice) read() ([]byte, error) {
+	return nil, errors.New("intended error")
 }
 
 func TestStart(t *testing.T) {
@@ -109,4 +118,12 @@ func TestClose(t *testing.T) {
 	go r.Run()
 	r.Stop()
 	m.AssertNumberOfCalls(t, "close", 1)
+}
+
+func TestCloseWithReadError(t *testing.T) {
+	m := new(mockErrorDevice)
+	m.On("close")
+	r := NewRawHID(m)
+	r.Run()
+	r.Stop()
 }

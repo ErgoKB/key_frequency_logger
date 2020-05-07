@@ -1,6 +1,8 @@
 package rawhid
 
 import (
+	"sync/atomic"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,6 +28,7 @@ type rawHID struct {
 	buffer    [][]byte
 	bufferIdx int
 
+	pullingDevice       atomic.Value
 	stopPullingDeviceCh chan struct{}
 	stopConsumeCh       chan struct{}
 }
@@ -36,7 +39,7 @@ func NewDefaultRawHID() *rawHID {
 }
 
 func NewRawHID(device hidDevice) *rawHID {
-	return &rawHID{
+	res := &rawHID{
 		hidDevice:           device,
 		outputCh:            make(chan string),
 		sendBuf:             make([]byte, 128),
@@ -46,6 +49,8 @@ func NewRawHID(device hidDevice) *rawHID {
 		stopPullingDeviceCh: make(chan struct{}),
 		stopConsumeCh:       make(chan struct{}),
 	}
+	res.pullingDevice.Store(false)
+	return res
 }
 
 func (r *rawHID) Start() {
@@ -59,9 +64,9 @@ func (r *rawHID) GetOutputCh() chan string {
 }
 
 func (r *rawHID) Stop() {
-	go func() {
+	if r.pullingDevice.Load().(bool) {
 		r.stopPullingDeviceCh <- struct{}{}
-	}()
+	}
 	r.hidDevice.close()
 }
 
@@ -70,6 +75,9 @@ func (r *rawHID) Run() {
 	defer func() {
 		r.stopConsumeCh <- struct{}{}
 	}()
+
+	r.pullingDevice.Store(true)
+	defer r.pullingDevice.Store(false)
 
 	for {
 		select {
