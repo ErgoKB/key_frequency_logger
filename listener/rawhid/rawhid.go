@@ -2,7 +2,9 @@ package rawhid
 
 import (
 	"sync/atomic"
+	"time"
 
+	"github.com/briandowns/spinner"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -55,7 +57,10 @@ func NewRawHID(device hidDevice) *rawHID {
 
 func (r *rawHID) Start() {
 	log.Info("Waiting for device...")
+	s := spinner.New(spinner.CharSets[43], 200*time.Millisecond)
+	s.Start()
 	r.hidDevice.open()
+	s.Stop()
 	log.Info("Device connected, starts listening")
 }
 

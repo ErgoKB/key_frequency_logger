@@ -10,6 +10,7 @@ type logger struct {
 	listener listener.Listener
 	parser   *parser.Parser
 	writer   *writer.Writer
+	doneCh   chan struct{}
 }
 
 func newLogger(path string) (*logger, error) {
@@ -21,6 +22,7 @@ func newLogger(path string) (*logger, error) {
 		listener: listener.NewListener(),
 		parser:   parser.NewParser(),
 		writer:   w,
+		doneCh:   make(chan struct{}),
 	}, nil
 }
 
@@ -32,6 +34,7 @@ func (l *logger) run() {
 			l.writer.WriteEvent(event)
 		}
 	}
+	l.doneCh <- struct{}{}
 }
 
 func (l *logger) close() {

@@ -65,6 +65,9 @@ func main() {
 
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-	<-sig
+	select {
+	case <-sig:
+	case <-frequencyLogger.doneCh:
+	}
 	fmt.Println()
 }
