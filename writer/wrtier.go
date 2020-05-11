@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/lschyi/key_frequency_logger/parser"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Writer struct {
@@ -14,13 +16,19 @@ type Writer struct {
 }
 
 func NewWriter(path string) (*Writer, error) {
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0755)
+	isOutputFileExists := isFileExists(path)
+	if isOutputFileExists {
+		log.Warnf("%s exists, append results to it", path)
+	}
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
 	}
 	res := newWriter(f)
-	if err := res.writeHeader(); err != nil {
-		return nil, err
+	if !isOutputFileExists {
+		if err := res.writeHeader(); err != nil {
+			return nil, err
+		}
 	}
 	return res, nil
 }
@@ -55,4 +63,12 @@ func (w *Writer) writeHeader() error {
 		"pressed",
 	}
 	return w.Write(header)
+}
+
+func isFileExists(path string) bool {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }
