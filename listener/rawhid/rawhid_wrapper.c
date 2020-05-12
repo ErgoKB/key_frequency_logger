@@ -20,6 +20,7 @@ void hid_start(void) {
 }
 
 int hid_read(void) {
+    int zeroCount = 0;
     int num, count;
     if (hid == NULL) {
         return -1;
@@ -32,7 +33,12 @@ int hid_read(void) {
     while (1) {
         num = rawhid_read(hid, buf, sizeof(buf), 200);
         if (num < 0) return -1;
-        if (num == 0) continue;
+        if (num == 0) {
+            if (++zeroCount == 3) {
+                return 0;
+            };
+            continue;
+        }
         for (count = 0; count < num; count++) {
             if (buf[count]) {
                 *bufPtr = buf[count];

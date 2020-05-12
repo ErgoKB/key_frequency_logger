@@ -1,6 +1,7 @@
 package rawhid
 
 import (
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -33,6 +34,8 @@ type rawHID struct {
 	pullingDevice       atomic.Value
 	stopPullingDeviceCh chan struct{}
 	stopConsumeCh       chan struct{}
+
+	runningGroup sync.WaitGroup
 }
 
 func NewDefaultRawHID() *rawHID {
@@ -73,9 +76,13 @@ func (r *rawHID) Stop() {
 		r.stopPullingDeviceCh <- struct{}{}
 	}
 	r.hidDevice.close()
+	r.runningGroup.Wait()
 }
 
 func (r *rawHID) Run() {
+	r.runningGroup.Add(1)
+	defer r.runningGroup.Done()
+
 	go r.consume()
 	defer func() {
 		r.stopConsumeCh <- struct{}{}
@@ -103,6 +110,9 @@ func (r *rawHID) Run() {
 }
 
 func (r *rawHID) bufferRead(read []byte) {
+	r.runningGroup.Add(1)
+	defer r.runningGroup.Done()
+
 	buf := make([]byte, len(read))
 	copy(buf[:len(read)], read[:len(read)])
 	r.buffer[r.bufferIdx] = buf
