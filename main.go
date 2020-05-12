@@ -69,7 +69,7 @@ func main() {
 	go frequencyLogger.run()
 
 	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	select {
 	case <-sig:
 	case <-frequencyLogger.doneCh:
