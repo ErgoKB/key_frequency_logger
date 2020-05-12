@@ -20,7 +20,7 @@ func NewWriter(path string) (*Writer, error) {
 	if isOutputFileExists {
 		log.Warnf("%s exists, append results to it", path)
 	}
-	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0755)
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		return nil, err
 	}

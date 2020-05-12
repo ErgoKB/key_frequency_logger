@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	filePath := flag.String("o", "output.csv", "output file name")
+	currentDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatalf("can not get executable directory, err: %s", err)
+	}
 
+	filePath := flag.String("o", filepath.Join(currentDir, "output.csv"), "output file name")
 	flag.Parse()
 
 	asciiArt :=

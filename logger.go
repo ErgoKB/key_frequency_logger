@@ -6,6 +6,8 @@ import (
 	"github.com/lschyi/key_frequency_logger/listener"
 	"github.com/lschyi/key_frequency_logger/parser"
 	"github.com/lschyi/key_frequency_logger/writer"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -16,6 +18,7 @@ type logger struct {
 	listener listener.Listener
 	parser   *parser.Parser
 	writer   *writer.Writer
+	counter  int
 	doneCh   chan struct{}
 }
 
@@ -35,21 +38,33 @@ func newLogger(path string) (*logger, error) {
 func (l *logger) run() {
 	l.listener.Start()
 	go l.listener.Run()
-	counter := 0
+	defer func() { l.doneCh <- struct{}{} }()
 	for line := range l.listener.GetOutputCh() {
-		if event := l.parser.Parse(line); event != nil {
-			l.writer.WriteEvent(event)
-			if !event.Pressed {
-				continue
-			}
-			fmt.Print(".")
-			counter = (counter + 1) % MaxDisplayKeystroke
-			if counter == 0 {
-				fmt.Printf("%c[2K\r", 27)
-			}
+		if err := l.handleLine(line); err != nil {
+			log.Errorf("get error: %s, can not handle this line: %s", err, line)
+			return
 		}
 	}
-	l.doneCh <- struct{}{}
+}
+
+func (l *logger) handleLine(line string) error {
+	event := l.parser.Parse(line)
+	if event == nil {
+		return nil
+	}
+
+	if err := l.writer.WriteEvent(event); err != nil {
+		return err
+	}
+
+	if event.Pressed {
+		fmt.Print(".")
+		l.counter = (l.counter + 1) % MaxDisplayKeystroke
+		if l.counter == 0 {
+			fmt.Printf("%c[2K\r", 27)
+		}
+	}
+	return nil
 }
 
 func (l *logger) close() {
