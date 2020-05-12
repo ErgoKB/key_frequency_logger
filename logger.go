@@ -18,7 +18,6 @@ type logger struct {
 	listener listener.Listener
 	parser   *parser.Parser
 	writer   *writer.Writer
-	counter  int
 	doneCh   chan struct{}
 }
 
@@ -57,13 +56,9 @@ func (l *logger) handleLine(line string) error {
 		return err
 	}
 
-	if event.Pressed {
-		fmt.Print(".")
-		l.counter = (l.counter + 1) % MaxDisplayKeystroke
-		if l.counter == 0 {
-			fmt.Printf("%c[2K\r", 27)
-		}
-	}
+	fmt.Printf("%c[2K\r", 27)
+	fmt.Printf("%+v", event)
+
 	return nil
 }
 
