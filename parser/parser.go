@@ -62,11 +62,7 @@ func parseEvent(line string) (*Event, error) {
 		}
 	}
 
-	if val, ok := keycodeMapping[res.Keycode]; ok {
-		res.ParsedKeycode = val
-	} else {
-		res.ParsedKeycode = "UNKNOWN"
-	}
+	res.ParsedKeycode = mapKeycode(res.Keycode)
 
 	return res, nil
 }

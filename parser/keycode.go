@@ -216,3 +216,14 @@ var keycodeMapping = map[int]string{
 	254: "KC_MS_ACCEL1",
 	255: "KC_MS_ACCEL2",
 }
+
+const (
+	UnknownKeycode = "UNKNOWN"
+)
+
+func mapKeycode(keycode int) string {
+	if val, ok := keycodeMapping[keycode]; ok {
+		return val
+	}
+	return UnknownKeycode
+}
