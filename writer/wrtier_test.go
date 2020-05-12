@@ -10,13 +10,14 @@ import (
 
 func TestWriteEvent(t *testing.T) {
 	event := parser.Event{
-		Keycode: 1,
-		Column:  2,
-		Row:     3,
-		Layer:   4,
-		Pressed: false,
+		Keycode:       1,
+		Column:        2,
+		Row:           3,
+		Layer:         4,
+		Pressed:       false,
+		ParsedKeycode: "KC_ROLL_OVER",
 	}
-	expected := "3,2,4,1,false\n"
+	expected := "3,2,4,1,KC_ROLL_OVER,false\n"
 	w := bytes.NewBuffer(make([]byte, 0))
 	testWriter := newWriter(w)
 	err := testWriter.WriteEvent(&event)
@@ -26,7 +27,7 @@ func TestWriteEvent(t *testing.T) {
 }
 
 func TestWriteHeader(t *testing.T) {
-	expected := "row,col,layer,keycode,pressed\n"
+	expected := "row,col,layer,keycode,parsed_keycode,pressed\n"
 	w := bytes.NewBuffer(make([]byte, 0))
 	testWriter := newWriter(w)
 	err := testWriter.writeHeader()

@@ -49,6 +49,7 @@ func (w *Writer) WriteEvent(e *parser.Event) error {
 		strconv.Itoa(e.Column),
 		strconv.Itoa(e.Layer),
 		strconv.Itoa(e.Keycode),
+		e.ParsedKeycode,
 		pressedVal,
 	}
 	return w.Write(val)
@@ -60,6 +61,7 @@ func (w *Writer) writeHeader() error {
 		"col",
 		"layer",
 		"keycode",
+		"parsed_keycode",
 		"pressed",
 	}
 	return w.Write(header)
