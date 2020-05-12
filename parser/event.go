@@ -5,11 +5,12 @@ import (
 )
 
 type Event struct {
-	Keycode int
-	Column  int
-	Row     int
-	Layer   int
-	Pressed bool
+	Keycode       int
+	Column        int
+	Row           int
+	Layer         int
+	ParsedKeycode string
+	Pressed       bool
 }
 
 func (e *Event) String() string {
@@ -19,5 +20,5 @@ func (e *Event) String() string {
 	} else {
 		pressedStr = "released"
 	}
-	return fmt.Sprintf("row: %d, col: %d, layer: %d, keycode: %d %s", e.Row, e.Column, e.Layer, e.Keycode, pressedStr)
+	return fmt.Sprintf("row: %d, col: %d, layer: %d, keycode: %d (%s) %s", e.Row, e.Column, e.Layer, e.Keycode, e.ParsedKeycode, pressedStr)
 }

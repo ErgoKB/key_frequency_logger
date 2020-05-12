@@ -15,11 +15,12 @@ func TestParseNonTargetLine(t *testing.T) {
 func TestParseEventLine(t *testing.T) {
 	p := NewParser()
 	event := Event{
-		Keycode: 13,
-		Column:  5,
-		Row:     4,
-		Layer:   0,
-		Pressed: false,
+		Keycode:       13,
+		Column:        5,
+		Row:           4,
+		Layer:         0,
+		Pressed:       false,
+		ParsedKeycode: "KC_J",
 	}
 	res := p.Parse("ErgoKB:5,4,0,0,13")
 	assert.Equal(t, &event, res)
