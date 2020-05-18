@@ -1,17 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	if runtime.GOOS == "windows" {
+		defer preserveTerminal()
+	}
+
 	currentDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatalf("can not get executable directory, err: %s", err)
@@ -84,4 +90,10 @@ func printLogo() {
                            *&&&&&
 	`
 	fmt.Println(asciiArt)
+}
+
+func preserveTerminal() {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Press Enter to leave")
+	reader.ReadString('\n')
 }
