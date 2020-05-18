@@ -1,4 +1,4 @@
-module github.com/lschyi/key_frequency_logger
+module github.com/ErgoKB/key_frequency_logger
 
 go 1.13
 

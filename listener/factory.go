@@ -1,7 +1,7 @@
 package listener
 
 import (
-	"github.com/lschyi/key_frequency_logger/listener/rawhid"
+	"github.com/ErgoKB/key_frequency_logger/listener/rawhid"
 )
 
 func NewListener() Listener {

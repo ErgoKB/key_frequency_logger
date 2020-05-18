@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/lschyi/key_frequency_logger/parser"
+	"github.com/ErgoKB/key_frequency_logger/parser"
 	"github.com/stretchr/testify/assert"
 )
 

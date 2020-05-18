@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/lschyi/key_frequency_logger/listener"
-	"github.com/lschyi/key_frequency_logger/parser"
-	"github.com/lschyi/key_frequency_logger/writer"
+	"github.com/ErgoKB/key_frequency_logger/listener"
+	"github.com/ErgoKB/key_frequency_logger/parser"
+	"github.com/ErgoKB/key_frequency_logger/writer"
 
 	log "github.com/sirupsen/logrus"
 )

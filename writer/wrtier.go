@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/lschyi/key_frequency_logger/parser"
+	"github.com/ErgoKB/key_frequency_logger/parser"
 
 	log "github.com/sirupsen/logrus"
 )
